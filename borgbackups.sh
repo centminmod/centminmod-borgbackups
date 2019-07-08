@@ -177,7 +177,7 @@ setup_borgbackup() {
       borg init -e repokey-blake2 "$BORG_REPO" --debug 2>&1 >/dev/null
       echo "$BORG_PASSPHRASE" > /root/.config/borg/pp
       if [ ! "$(grep -w 'BORG_PASSPHRASE=' ~/.bashrc)" ]; then
-        echo -e "\nexport BORG_PASSPHRASE=$BORG_PASSPHRASE" >> ~/.bashrc
+        echo -e "\nexport BORG_PASSPHRASE=\"$BORG_PASSPHRASE\"" >> ~/.bashrc
       fi
       if [ ! "$(grep -w 'BORG_PASSPHRASE=' ~/.bashrc)" ]; then
         echo -e "\nexport BORG_REPO=$BORG_REPO" >> ~/.bashrc

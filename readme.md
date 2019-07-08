@@ -59,6 +59,31 @@ BORG_KEEP_WEEKLY='4'
 BORG_KEEP_MONTHLY='12'
 ```
 
+## borgbackups.sh install
+
+To install and setup borgbackups run SSH command
+
+```
+./borgbackups.sh install
+source /root/.bashrc
+borg info
+```
+
+```
+borg info               
+Repository ID: 97a25e149c89a17ca4d5fb50b10820461b63812eceb77f34b0d3499a1cf5ecec
+Location: /home/borgbackups
+Encrypted: Yes (repokey BLAKE2b)
+Cache: /root/.cache/borg/97a25e149c89a17ca4d5fb50b10820461b63812eceb77f34b0d3499a1cf5ecec
+Security dir: /root/.config/borg/security/97a25e149c89a17ca4d5fb50b10820461b63812eceb77f34b0d3499a1cf5ecec
+------------------------------------------------------------------------------
+                       Original size      Compressed size    Deduplicated size
+All archives:                    0 B                  0 B                  0 B
+
+                       Unique chunks         Total chunks
+Chunk index:                       0                    0
+```
+
 ## backup example
 
 Example backup run
