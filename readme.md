@@ -26,6 +26,28 @@ Usage:
 ./borgbackups.sh cleanup
 ```
 
+You can setup a cronjob schedule every 24 hrs at 1:15 AM via crontab
+
+```
+15 1 * * * /usr/local/src/centminmod/addons/borgbackups.sh >/dev/null 2>&1
+```
+
+borgbackups.sh is written to prune older borg backups according to the following retention schedule
+
+```
+# borg prune how long to keep backups before removal
+BORG_KEEP_HOURLY='24'
+BORG_KEEP_DAILY='7'
+BORG_KEEP_WEEKLY='4'
+BORG_KEEP_MONTHLY='12'
+```
+So it will keep
+
+* the last 24 hourly backups if you setup a hourly cronjob schedule
+* the last 7 days backups if you setup a daily cronjob schedule
+* the last 4 weeks of backups
+* the last 12 monthly backups
+
 ## config options
 
 `addons/borgbackups.sh` has the following config options.
