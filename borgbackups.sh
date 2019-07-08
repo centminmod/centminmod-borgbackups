@@ -208,7 +208,7 @@ run_borgbackup() {
       if [ -d ${d} ]; then
         DT=$(date +"%d%m%y-%H%M%S")
         reponame=$(basename ${d})
-        echo "borgbackup for ${reponame}"
+        echo "borgbackup for ${d} creating repo name: ${reponame}-${DT}"
         if [[ "$BORG_DEBUG" = [yY] ]]; then
           echo "$NICE $NICEOPT $IONICE $IONICEOPT borg create ${BORG_EXCLUDED} --stats --comment ${d} --compression auto,zstd,6 ::${reponame}-${DT} $d"
         fi
