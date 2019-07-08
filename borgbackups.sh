@@ -49,6 +49,11 @@ BORG_KEEP_MONTHLY='12'
 CENTMINLOGDIR='/root/centminlogs'
 DIR_TMP='/svr-setup'
 SCRIPT_DIR=$(readlink -f $(dirname ${BASH_SOURCE[0]}))
+
+NICE=$(which nice)
+NICEOPT='-n 12'
+IONICE=$(which ionice)
+IONICEOPT='-c2 -n7'
 ######################################################
 # Setup Colours
 black='\E[30;40m'
@@ -205,13 +210,13 @@ run_borgbackup() {
         reponame=$(basename ${d})
         echo "borgbackup for ${reponame}"
         if [[ "$BORG_DEBUG" ]]; then
-          echo "borg create ${BORG_EXCLUDED} --stats --comment ${reponame} --compression auto,zstd,3 ::${reponame}-${DT} $d"
+          echo "$NICE $NICEOPT $IONICE $IONICEOPT borg create ${BORG_EXCLUDED} --stats --comment ${reponame} --compression auto,zstd,3 ::${reponame}-${DT} $d"
         fi
-        borg create ${BORG_EXCLUDED} --stats --comment ${reponame} --compression auto,zstd,3 ::${reponame}-${DT} "$d" | tee /home/borgbackups-logs/${reponame}-borgbackup-${DT}.log
+        $NICE $NICEOPT $IONICE $IONICEOPT borg create ${BORG_EXCLUDED} --stats --comment ${reponame} --compression auto,zstd,3 ::${reponame}-${DT} "$d" | tee /home/borgbackups-logs/${reponame}-borgbackup-${DT}.log
         if [[ "$BORG_DEBUG" ]]; then
-          echo "borg prune -v ${BORG_REPO} --prefix ${reponame}- --keep-hourly=${BORG_KEEP_HOURLY} --keep-daily=${BORG_KEEP_DAILY} --keep-weekly=${BORG_KEEP_WEEKLY} --keep-monthly=${BORG_KEEP_MONTHLY} --stats"
+          echo "$NICE $NICEOPT $IONICE $IONICEOPT borg prune -v ${BORG_REPO} --prefix ${reponame}- --keep-hourly=${BORG_KEEP_HOURLY} --keep-daily=${BORG_KEEP_DAILY} --keep-weekly=${BORG_KEEP_WEEKLY} --keep-monthly=${BORG_KEEP_MONTHLY} --stats"
         fi
-        borg prune -v ${BORG_REPO} --prefix "${reponame}-" --keep-hourly=${BORG_KEEP_HOURLY} --keep-daily=${BORG_KEEP_DAILY} --keep-weekly=${BORG_KEEP_WEEKLY} --keep-monthly=${BORG_KEEP_MONTHLY} --stats | tee /home/borgbackups-logs/prune-${reponame}-borgbackup-${DT}.log
+        $NICE $NICEOPT $IONICE $IONICEOPT borg prune -v ${BORG_REPO} --prefix "${reponame}-" --keep-hourly=${BORG_KEEP_HOURLY} --keep-daily=${BORG_KEEP_DAILY} --keep-weekly=${BORG_KEEP_WEEKLY} --keep-monthly=${BORG_KEEP_MONTHLY} --stats | tee /home/borgbackups-logs/prune-${reponame}-borgbackup-${DT}.log
       fi
     done
     if [[ "$BORG_DEBUG" ]]; then
