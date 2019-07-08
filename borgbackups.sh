@@ -1,5 +1,5 @@
 #!/bin/bash
-VER='0.1'
+VER='0.2'
 #####################################################
 # set locale temporarily to english
 # due to some non-english locale issues
@@ -45,6 +45,9 @@ BORG_KEEP_HOURLY='24'
 BORG_KEEP_DAILY='7'
 BORG_KEEP_WEEKLY='4'
 BORG_KEEP_MONTHLY='12'
+
+# https://borgbackup.readthedocs.io/en/stable/faq.html#always-chunking
+BORG_FILES_CACHE_TTL='40'
 
 CENTMINLOGDIR='/root/centminlogs'
 DIR_TMP='/svr-setup'
@@ -171,6 +174,7 @@ setup_borgbackup() {
     fi
     export BORG_PASSPHRASE=$BORG_PASSPHRASE
     export BORG_REPO=$BORG_REPO
+    export BORG_FILES_CACHE_TTL=$BORG_FILES_CACHE_TTL
     getrepo_location=$(borg info --json | jq -r '.repository.location')
     if [[ "$getrepo_location" != "$BORG_REPO" ]] || [[ ! "$getrepo_location" ]] || [[ "$(echo $getrepo_location | grep -o 'does not exist')" ]]; then
       # https://borgbackup.readthedocs.io/en/stable/usage/init.html
