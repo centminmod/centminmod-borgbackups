@@ -209,17 +209,17 @@ run_borgbackup() {
         DT=$(date +"%d%m%y-%H%M%S")
         reponame=$(basename ${d})
         echo "borgbackup for ${reponame}"
-        if [[ "$BORG_DEBUG" ]]; then
-          echo "$NICE $NICEOPT $IONICE $IONICEOPT borg create ${BORG_EXCLUDED} --stats --comment ${reponame} --compression auto,zstd,3 ::${reponame}-${DT} $d"
+        if [[ "$BORG_DEBUG" = [yY] ]]; then
+          echo "$NICE $NICEOPT $IONICE $IONICEOPT borg create ${BORG_EXCLUDED} --stats --comment ${reponame} --compression auto,zstd,6 ::${reponame}-${DT} $d"
         fi
-        $NICE $NICEOPT $IONICE $IONICEOPT borg create ${BORG_EXCLUDED} --stats --comment ${reponame} --compression auto,zstd,3 ::${reponame}-${DT} "$d" | tee /home/borgbackups-logs/${reponame}-borgbackup-${DT}.log
-        if [[ "$BORG_DEBUG" ]]; then
+        $NICE $NICEOPT $IONICE $IONICEOPT borg create ${BORG_EXCLUDED} --stats --comment ${reponame} --compression auto,zstd,6 ::${reponame}-${DT} "$d" | tee /home/borgbackups-logs/${reponame}-borgbackup-${DT}.log
+        if [[ "$BORG_DEBUG" = [yY] ]]; then
           echo "$NICE $NICEOPT $IONICE $IONICEOPT borg prune -v ${BORG_REPO} --prefix ${reponame}- --keep-hourly=${BORG_KEEP_HOURLY} --keep-daily=${BORG_KEEP_DAILY} --keep-weekly=${BORG_KEEP_WEEKLY} --keep-monthly=${BORG_KEEP_MONTHLY} --stats"
         fi
         $NICE $NICEOPT $IONICE $IONICEOPT borg prune -v ${BORG_REPO} --prefix "${reponame}-" --keep-hourly=${BORG_KEEP_HOURLY} --keep-daily=${BORG_KEEP_DAILY} --keep-weekly=${BORG_KEEP_WEEKLY} --keep-monthly=${BORG_KEEP_MONTHLY} --stats | tee /home/borgbackups-logs/prune-${reponame}-borgbackup-${DT}.log
       fi
     done
-    if [[ "$BORG_DEBUG" ]]; then
+    if [[ "$BORG_DEBUG" = [yY] ]]; then
       echo
       echo "borg list"
     fi
