@@ -176,6 +176,7 @@ setup_borgbackup() {
       # https://borgbackup.readthedocs.io/en/stable/usage/init.html
       borg init -e repokey-blake2 "$BORG_REPO" --debug 2>&1 >/dev/null
       echo "$BORG_PASSPHRASE" > /root/.config/borg/pp
+      chmod 400 /root/.config/borg/pp
       if [ ! "$(grep -w 'BORG_PASSPHRASE=' ~/.bashrc)" ]; then
         echo -e "\nexport BORG_PASSPHRASE=\"$BORG_PASSPHRASE\"" >> ~/.bashrc
       fi
