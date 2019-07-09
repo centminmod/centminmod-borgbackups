@@ -289,6 +289,7 @@ echo "Total borgbackup Install Time: $INSTALLTIME seconds" >> "${CENTMINLOGDIR}/
 starttime=$(TZ=UTC date +%s.%N)
 {
     run_borgbackup
+    bber=$?
 } 2>&1 | tee "${CENTMINLOGDIR}/addons-borgbackup-backuprun-${DT}.log"
 
 endtime=$(TZ=UTC date +%s.%N)
