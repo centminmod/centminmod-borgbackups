@@ -244,10 +244,14 @@ run_borgbackup() {
           echo "$NICE $NICEOPT $IONICE $IONICEOPT borg create ${BORG_EXCLUDED} --stats --comment ${d} --compression auto,zstd,6 ::${reponame}-${DT} $d"
         fi
         $NICE $NICEOPT $IONICE $IONICEOPT borg create ${BORG_EXCLUDED} --stats --comment ${d} --compression auto,zstd,6 ::${reponame}-${DT} "$d" | tee /home/borgbackups-logs/${reponame}-borgbackup-${DT}.log
+        bberr_backupcount=$?
         if [[ "$BORG_DEBUG" = [yY] ]]; then
           echo "$NICE $NICEOPT $IONICE $IONICEOPT borg prune -v ${BORG_REPO} --prefix ${reponame}- --keep-hourly=${BORG_KEEP_HOURLY} --keep-daily=${BORG_KEEP_DAILY} --keep-weekly=${BORG_KEEP_WEEKLY} --keep-monthly=${BORG_KEEP_MONTHLY} --stats"
         fi
         $NICE $NICEOPT $IONICE $IONICEOPT borg prune -v ${BORG_REPO} --prefix "${reponame}-" --keep-hourly=${BORG_KEEP_HOURLY} --keep-daily=${BORG_KEEP_DAILY} --keep-weekly=${BORG_KEEP_WEEKLY} --keep-monthly=${BORG_KEEP_MONTHLY} --stats | tee /home/borgbackups-logs/prune-${reponame}-borgbackup-${DT}.log
+        bberr_prunecount=$?
+        bberr_tally=$(($bberr_backupcount+$bberr_prunecount))
+        bberr=$(($bberr+$bberr_tally))
       fi
     done
     if [[ "$BORG_DEBUG" = [yY] ]]; then
@@ -289,7 +293,6 @@ echo "Total borgbackup Install Time: $INSTALLTIME seconds" >> "${CENTMINLOGDIR}/
 starttime=$(TZ=UTC date +%s.%N)
 {
     run_borgbackup
-    bber=$?
 } 2>&1 | tee "${CENTMINLOGDIR}/addons-borgbackup-backuprun-${DT}.log"
 
 endtime=$(TZ=UTC date +%s.%N)
