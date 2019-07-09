@@ -81,6 +81,23 @@ BORG_KEEP_WEEKLY='4'
 BORG_KEEP_MONTHLY='12'
 ```
 
+## email notifications
+
+You can set borg backup runs to email notify you when done - setting `BORG_EMAIL_SEND='y'`
+
+```
+# EMAIL SECTION
+BORG_EMAIL_SEND='n'
+BORG_EMAIL='youremailaddress'
+```
+
+## config override options
+
+You can override `borgbackups.sh` config variables via the following setting files you can create if they do not already exist allowing you to leave `borgsbackups.sh` untouched without edits for easier upgrades. You move custom variables into either of these settings files instead.
+
+* `/etc/centminmod/borgbackups.ini` - this is settings config file specific for `borgbackups.sh` and will override any settings set in `/etc/centminmod/custom_config.inc`
+* `/etc/centminmod/custom_config.inc` - this is Centmin Mod 123.09beta01 or newer's persistent config file that can also override [centmin.sh menu option variables](https://centminmod.com/menu.html).
+
 ## borgbackups.sh install
 
 To install and setup borgbackups run SSH command

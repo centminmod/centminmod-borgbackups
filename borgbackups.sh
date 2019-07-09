@@ -1,5 +1,5 @@
 #!/bin/bash
-VER='0.2'
+VER='0.3'
 #####################################################
 # set locale temporarily to english
 # due to some non-english locale issues
@@ -57,6 +57,10 @@ NICE=$(which nice)
 NICEOPT='-n 12'
 IONICE=$(which ionice)
 IONICEOPT='-c2 -n7'
+######################################################
+# EMAIL SECTION
+BORG_EMAIL_SEND='n'
+BORG_EMAIL='youremailaddress'
 ######################################################
 # Setup Colours
 black='\E[30;40m'
@@ -148,6 +152,28 @@ if [ -f "${CONFIGSCANBASE}/custom_config.inc" ]; then
   fi
     source "${CONFIGSCANBASE}/custom_config.inc"
 fi
+
+if [ -f "${SCRIPT_DIR}/borgbackups.ini" ]; then
+  . "${SCRIPT_DIR}/borgbackups.ini"
+fi
+
+if [ -f "/etc/centminmod/borgbackups.ini" ]; then
+  . "/etc/centminmod/borgbackups.ini"
+fi
+
+sendemail() {
+  BORGBACKUPLOG=$1
+# sendemail begin
+# email ${BACKUPLOGDIR}/siteexport_${DT}.log contents for backup status etc
+if [[ "$BORG_EMAIL_SEND" = [yY] ]]; then
+    cat -v ${BORGBACKUPLOG} | dos2unix | mail -s "`hostname` borg backup: `date`" $BORG_EMAIL 2>&1 &
+  if [ -f "/etc/centminmod/push.inc" ]; then
+    . "/etc/centminmod/push.inc"
+    pushalert
+  fi
+fi
+# sendemail end
+}
 
 preyum() {
   if [[ ! "$(rpm -ql python36-Cython | grep -v 'not installed')" || ! "$(rpm -ql jq | grep -v 'not installed')" || ! "$(rpm -ql borgbackup | grep -v 'not installed')" || ! "$(rpm -ql libzstd | grep -v 'not installed')" || ! "$(rpm -ql zstd | grep -v 'not installed')" ]]; then
@@ -251,37 +277,40 @@ starttime=$(TZ=UTC date +%s.%N)
 {
     preyum
     setup_borgbackup
-} 2>&1 | tee ${CENTMINLOGDIR}/addons-borgbackup-setup-${DT}.log
+} 2>&1 | tee "${CENTMINLOGDIR}/addons-borgbackup-setup-${DT}.log"
 
 endtime=$(TZ=UTC date +%s.%N)
 
 INSTALLTIME=$(echo "scale=2;$endtime - $starttime"|bc )
-echo "" >> ${CENTMINLOGDIR}/addons-borgbackup-setup-${DT}.log
-echo "Total borgbackup Install Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/addons-borgbackup-setup-${DT}.log
+echo "" >> "${CENTMINLOGDIR}/addons-borgbackup-setup-${DT}.log"
+echo "Total borgbackup Install Time: $INSTALLTIME seconds" >> "${CENTMINLOGDIR}/addons-borgbackup-setup-${DT}.log"
   ;;
   backup)
 starttime=$(TZ=UTC date +%s.%N)
 {
     run_borgbackup
-} 2>&1 | tee ${CENTMINLOGDIR}/addons-borgbackup-backuprun-${DT}.log
+} 2>&1 | tee "${CENTMINLOGDIR}/addons-borgbackup-backuprun-${DT}.log"
 
 endtime=$(TZ=UTC date +%s.%N)
 
 INSTALLTIME=$(echo "scale=2;$endtime - $starttime"|bc )
-echo "" >> ${CENTMINLOGDIR}/addons-borgbackup-backuprun-${DT}.log
-echo "Total borgbackup Backup Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/addons-borgbackup-backuprun-${DT}.log
+echo "" >> "${CENTMINLOGDIR}/addons-borgbackup-backuprun-${DT}.log"
+echo "Total borgbackup Backup Time: $INSTALLTIME seconds" >> "${CENTMINLOGDIR}/addons-borgbackup-backuprun-${DT}.log"
+  if [[ "$bberr" -eq '0' ]]; then
+    sendemail "${CENTMINLOGDIR}/addons-borgbackup-backuprun-${DT}.log"
+  fi
   ;;
   cleanup)
 starttime=$(TZ=UTC date +%s.%N)
 {
     clean_borgbackup
-} 2>&1 | tee ${CENTMINLOGDIR}/addons-borgbackup-cleanuprun-${DT}.log
+} 2>&1 | tee "${CENTMINLOGDIR}/addons-borgbackup-cleanuprun-${DT}.log"
 
 endtime=$(TZ=UTC date +%s.%N)
 
 INSTALLTIME=$(echo "scale=2;$endtime - $starttime"|bc )
-echo "" >> ${CENTMINLOGDIR}/addons-borgbackup-cleanuprun-${DT}.log
-echo "Total borgbackup Cleanup Time: $INSTALLTIME seconds" >> ${CENTMINLOGDIR}/addons-borgbackup-cleanuprun-${DT}.log
+echo "" >> "${CENTMINLOGDIR}/addons-borgbackup-cleanuprun-${DT}.log"
+echo "Total borgbackup Cleanup Time: $INSTALLTIME seconds" >>" ${CENTMINLOGDIR}/addons-borgbackup-cleanuprun-${DT}.log"
   ;;
   *)
     echo
