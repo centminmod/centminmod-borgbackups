@@ -29,7 +29,7 @@ Usage:
 You can setup a cronjob schedule every 24 hrs at 1:15 AM via crontab
 
 ```
-15 1 * * * /usr/local/src/centminmod/addons/borgbackups.sh >/dev/null 2>&1
+15 1 * * * /usr/local/src/centminmod/addons/borgbackups.sh backup >/dev/null 2>&1
 ```
 
 borgbackups.sh is written to prune older borg backups according to the following retention schedule

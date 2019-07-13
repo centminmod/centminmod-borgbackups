@@ -313,8 +313,8 @@ starttime=$(TZ=UTC date +%s.%N)
 endtime=$(TZ=UTC date +%s.%N)
 
 INSTALLTIME=$(echo "scale=2;$endtime - $starttime"|bc )
-echo "" >> "${CENTMINLOGDIR}/addons-borgbackup-cleanuprun-${DT}.log"
-echo "Total borgbackup Cleanup Time: $INSTALLTIME seconds" >>" ${CENTMINLOGDIR}/addons-borgbackup-cleanuprun-${DT}.log"
+# echo "" >> "${CENTMINLOGDIR}/addons-borgbackup-cleanuprun-${DT}.log"
+# echo "Total borgbackup Cleanup Time: $INSTALLTIME seconds" >>" ${CENTMINLOGDIR}/addons-borgbackup-cleanuprun-${DT}.log"
   ;;
   *)
     echo
