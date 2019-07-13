@@ -1,5 +1,5 @@
 #!/bin/bash
-VER='0.3'
+VER='0.4'
 #####################################################
 # set locale temporarily to english
 # due to some non-english locale issues
@@ -210,7 +210,7 @@ setup_borgbackup() {
       if [ ! "$(grep -w 'BORG_PASSPHRASE=' ~/.bashrc)" ]; then
         echo -e "\nexport BORG_PASSPHRASE=\"$BORG_PASSPHRASE\"" >> ~/.bashrc
       fi
-      if [ ! "$(grep -w 'BORG_PASSPHRASE=' ~/.bashrc)" ]; then
+      if [ ! "$(grep -w 'BORG_REPO=' ~/.bashrc)" ]; then
         echo -e "\nexport BORG_REPO=$BORG_REPO" >> ~/.bashrc
       fi
       # if [ ! "$(grep -w 'borgc' ~/.bashrc)" ]; then
