@@ -17,6 +17,7 @@ BORG_BACKUPTARGETS='/home/nginx/domains /root/.ssh /root/tools /root/centminlogs
 * install - install borgbackup yum package and setup and initialize the borg repository at `/home/borgbackups`
 * backup - run borg backup to create repos for defined `BORG_BACKUPTARGETS` space separated list of directories
 * cleanup - wipes and removes all borg backup config and repos
+* reset-passphrase - reset and change the borgbackup repo's passphrase via reset-passphrase command option by passing your new desired passphrase i.e. `NEW_PASSPHRASE`
 
 ```
 Usage:
@@ -24,6 +25,7 @@ Usage:
 ./borgbackups.sh install
 ./borgbackups.sh backup
 ./borgbackups.sh cleanup
+./borgbackups.sh reset-passphrase NEW_PASSPHRASE
 ```
 
 You can setup a cronjob schedule every 24 hrs at 1:15 AM via crontab

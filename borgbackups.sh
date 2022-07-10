@@ -1,5 +1,5 @@
 #!/bin/bash
-VER='0.4'
+VER='0.5'
 #####################################################
 # set locale temporarily to english
 # due to some non-english locale issues
@@ -186,11 +186,45 @@ preyum() {
   fi
 }
 
+reset_passphrase() {
+  new_passphrase=$1
+  echo
+  echo "Reset borgbackup BORG_PASSPHRASE"
+  if [ -f /root/.config/borg/pp ]; then
+    BORG_OLD_PASSPHRASE=$(cat /root/.config/borg/pp)
+    echo "Existing BORG_PASSPHRASE: $BORG_OLD_PASSPHRASE"
+    echo "New BORG_PASSPHRASE: $new_passphrase"
+    BORG_NEW_PASSPHRASE="$new_passphrase"
+  fi
+  export BORG_PASSPHRASE=$BORG_OLD_PASSPHRASE
+  export BORG_REPO=$BORG_REPO
+  echo "BORG_PASSPHRASE=$BORG_OLD_PASSPHRASE BORG_NEW_PASSPHRASE=\"$new_passphrase\" borg key change-passphrase \"$BORG_REPO\""
+  BORG_PASSPHRASE=$BORG_OLD_PASSPHRASE BORG_NEW_PASSPHRASE="$new_passphrase" borg key change-passphrase "$BORG_REPO"
+  echo "echo $BORG_NEW_PASSPHRASE > /root/.config/borg/pp"
+  echo $BORG_NEW_PASSPHRASE > /root/.config/borg/pp
+  if [ "$(grep -w 'BORG_PASSPHRASE=' ~/.bashrc)" ]; then
+    sed -i "s|export BORG_PASSPHRASE=.*|export BORG_PASSPHRASE=\"$BORG_NEW_PASSPHRASE\"|" ~/.bashrc
+  fi
+  export BORG_PASSPHRASE=$new_passphrase
+  echo
+  echo "borg info $BORG_REPO"
+  echo
+  borg info $BORG_REPO
+  echo
+  echo "reset BORG_PASSPHRASE completed"
+  echo "run these commands below to complete it:"
+  echo
+  echo "source ~/.bashrc"
+  echo "borg info $BORG_REPO"
+  echo
+  echo "or exit SSH session and re-login"
+}
+
 setup_borgbackup() {
   if [ -f /usr/bin/borg ]; then
     if [ -z "$BORG_PASSPHRASE" ]; then
       # auto generate borg passphrase if BORG_PASSPHRASE variable is empty
-      BORG_PASSPHRASE=$(pwgen -1ny 13)
+      BORG_PASSPHRASE=$(pwgen -1n 18)
       echo
       echo "Generated $BORG_PASSPHRASE"
       echo
@@ -222,7 +256,13 @@ setup_borgbackup() {
       # fi
       echo
       echo "Get borg repo info"
-      borg info
+      echo
+      echo "export BORG_PASSPHRASE=$BORG_PASSPHRASE"
+      echo "export BORG_REPO=$BORG_REPO"
+      echo "export BORG_FILES_CACHE_TTL=$BORG_FILES_CACHE_TTL"
+      echo
+      echo "borg info $BORG_REPO"
+      borg info $BORG_REPO
     fi
   fi
 }
@@ -313,8 +353,16 @@ starttime=$(TZ=UTC date +%s.%N)
 endtime=$(TZ=UTC date +%s.%N)
 
 INSTALLTIME=$(echo "scale=2;$endtime - $starttime"|bc )
-# echo "" >> "${CENTMINLOGDIR}/addons-borgbackup-cleanuprun-${DT}.log"
-# echo "Total borgbackup Cleanup Time: $INSTALLTIME seconds" >>" ${CENTMINLOGDIR}/addons-borgbackup-cleanuprun-${DT}.log"
+  ;;
+  reset-passphrase)
+starttime=$(TZ=UTC date +%s.%N)
+{
+    reset_passphrase "$2"
+} 2>&1 | tee "${CENTMINLOGDIR}/addons-borgbackup-reset-passphrase-${DT}.log"
+
+endtime=$(TZ=UTC date +%s.%N)
+
+INSTALLTIME=$(echo "scale=2;$endtime - $starttime"|bc )
   ;;
   *)
     echo
@@ -323,6 +371,7 @@ INSTALLTIME=$(echo "scale=2;$endtime - $starttime"|bc )
     echo "$0 install"
     echo "$0 backup"
     echo "$0 cleanup"
+    echo "$0 reset-passphrase YOUR_NEW_PASSPHRASE"
   ;;
 esac
 exit
